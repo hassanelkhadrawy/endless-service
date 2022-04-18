@@ -4,23 +4,21 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
-import android.os.IBinder
-import android.os.PowerManager
-import android.os.SystemClock
+import android.os.*
 import android.provider.Settings
 import android.widget.Toast
-import java.text.SimpleDateFormat
-import java.util.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class EndlessService : Service() {
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var isServiceStarted = false
+    var runnable: Runnable? = null
 
     override fun onBind(intent: Intent): IBinder? {
         log("Some component want to bind with the service")
@@ -74,6 +72,12 @@ class EndlessService : Service() {
         if (isServiceStarted) return
         log("Starting the foreground service task")
         Toast.makeText(this, "Service starting its task", Toast.LENGTH_SHORT).show()
+        val handler = Handler()
+        runnable = java.lang.Runnable {
+            Toast.makeText(this@EndlessService, "Service started by user.", Toast.LENGTH_LONG).show()
+            handler.postDelayed(runnable, 5000)
+        }
+        handler.post(runnable)
         isServiceStarted = true
         setServiceState(this, ServiceState.STARTED)
 
